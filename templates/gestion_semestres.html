@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block title %}Gestión de Semestres - {{ alumno.nombre }}{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card cbtis-card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h3 class="card-title">📚 Gestión de Semestres</h3>
+                            <p class="mb-1"><strong>Alumno:</strong> {{ alumno.nombre }}</p>
+                            <p class="mb-1"><strong>No. Control:</strong> {{ alumno.numero_control }}</p>
+                            <p class="mb-1"><strong>Especialidad:</strong> {{ alumno.especialidad }}</p>
+                            {% if alumno.promedio_general %}
+                            <p class="mb-0"><strong>Promedio General:</strong> 
+                                <span class="badge bg-primary fs-6">{{ alumno.promedio_general }}</span>
+                            </p>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <a href="{{ url_for('agregar_semestre', id_alumno=alumno.id) }}" class="btn btn-success">
+                                ➕ Agregar Semestre
+                            </a>
+                            <a href="{{ url_for('admin_alumnos') }}" class="btn btn-secondary mt-2">
+                                ← Volver a Alumnos
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if alumno.semestres %}
+        {% for semestre in alumno.semestres %}
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    {{ semestre.semestre_numero }}° Semestre - {{ semestre.periodo }}
+                    <span class="badge bg-light text-dark ms-2">
+                        Promedio: {{ semestre.promedio_semestre }} | 
+                        Aprobadas: {{ semestre.materias_aprobadas }}/{{ semestre.materias|length }}
+                    </span>
+                </h5>
+                <a href="{{ url_for('agregar_materia', id_alumno=alumno.id, semestre_index=loop.index0) }}" 
+                   class="btn btn-sm btn-light">
+                    📖 Agregar Materia
+                </a>
+            </div>
+            <div class="card-body">
+                {% if semestre.materias %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Materia</th>
+                                <th>Profesor</th>
+                                <th>Créditos</th>
+                                <th>Parciales</th>
+                                <th>Promedio</th>
+                                <th>Final</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for materia in semestre.materias %}
+                            <tr>
+                                <td><strong>{{ materia.nombre }}</strong></td>
+                                <td>{{ materia.profesor }}</td>
+                                <td>{{ materia.creditos }}</td>
+                                <td>
+                                    {% if materia.parciales %}
+                                        {% for parcial in materia.parciales %}
+                                        <span class="badge bg-secondary me-1">{{ parcial }}</span>
+                                        {% endfor %}
+                                        <br>
+                                        <small>Prom: {{ materia.promedio_parciales|default(materia.calificacion_final) }}</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge bg-info">
+                                        {{ materia.promedio_parciales|default(materia.calificacion_final) }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge {% if materia.estado == 'Aprobada' %}bg-success{% else %}bg-danger{% endif %} fs-6">
+                                        {{ materia.calificacion_final }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge {% if materia.estado == 'Aprobada' %}bg-success{% elif materia.estado == 'Reprobada' %}bg-danger{% else %}bg-info{% endif %}">
+                                       {{ materia.estado }}
+                                     </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info text-center">
+                    <p>No hay materias registradas en este semestre.</p>
+                    <a href="{{ url_for('agregar_materia', id_alumno=alumno.id, semestre_index=loop.index0) }}" 
+                       class="btn btn-primary">
+                        Agregar Primera Materia
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+    <div class="alert alert-warning text-center">
+        <h5>No hay semestres registrados</h5>
+        <p>Comienza agregando el primer semestre del alumno.</p>
+        <a href="{{ url_for('agregar_semestre', id_alumno=alumno.id) }}" class="btn btn-primary">
+            Agregar Primer Semestre
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

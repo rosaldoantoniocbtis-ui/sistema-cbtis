@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Agregar Materia - {{ alumno.nombre }}{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">📖 Agregar Nueva Materia</h4>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <p><strong>Alumno:</strong> {{ alumno.nombre }}</p>
+                        <p><strong>Semestre:</strong> {{ semestre.semestre_numero }}° - {{ semestre.periodo }}</p>
+                    </div>
+
+                    <form method="post">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Nombre de la Materia *</label>
+                                <input type="text" class="form-control" name="nombre" 
+                                       placeholder="Ej: Matemáticas III" required>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Profesor *</label>
+                                <input type="text" class="form-control" name="profesor" 
+                                       placeholder="Ej: Dr. Carlos Rodríguez" required>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Créditos *</label>
+                                <select class="form-select" name="creditos" required>
+                                    <option value="">Seleccionar créditos</option>
+                                    <option value="3">3 Créditos (Materia básica)</option>
+                                    <option value="4">4 Créditos (Materia regular)</option>
+                                    <option value="5" selected>5 Créditos (Materia importante)</option>
+                                    <option value="6">6 Créditos (Materia talleres)</option>
+                                </select>
+                                <small class="text-muted">Los créditos representan la importancia y horas de la materia</small>
+                            </div>
+                            
+                            <div class="col-md-8 mb-3">
+                                <label class="form-label">Calificaciones de Parciales</label>
+                                <div class="row g-2">
+                                    <div class="col-4">
+                                        <input type="number" class="form-control" name="parcial1" 
+                                               placeholder="1° Parcial" min="0" max="10" step="0.1" value="0">
+                                    </div>
+                                    <div class="col-4">
+                                        <input type="number" class="form-control" name="parcial2" 
+                                               placeholder="2° Parcial" min="0" max="10" step="0.1" value="0">
+                                    </div>
+                                    <div class="col-4">
+                                        <input type="number" class="form-control" name="parcial3" 
+                                               placeholder="3° Parcial" min="0" max="10" step="0.1" value="0">
+                                    </div>
+                                </div>
+                                <small class="text-muted">
+                                    💡 <strong>Nota:</strong> Puedes dejar en 0 los parciales que aún no se han evaluado. 
+                                    Puedes actualizarlos después.
+                                </small>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('gestion_semestres', id_alumno=alumno.id) }}" 
+                               class="btn btn-secondary">
+                                ← Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                ✅ Agregar Materia
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

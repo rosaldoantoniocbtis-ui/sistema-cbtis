@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}Panel de Administración - CBTIS 272{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card cbtis-card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h3 class="card-title">👨‍💼 Panel de Administración</h3>
+                            <p class="mb-1"><strong>Administrador:</strong> {{ session.nombre }}</p>
+                            <p class="mb-0"><strong>Rol:</strong> Administrador del Sistema</p>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <div class="bg-primary text-white p-3 rounded">
+                                <h4 class="mb-0">{{ total_alumnos }}</h4>
+                                <small>Total Alumnos</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card text-white bg-success h-100">
+                <div class="card-body text-center">
+                    <h1>{{ total_alumnos }}</h1>
+                    <p class="mb-0">Alumnos Registrados</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-info h-100">
+                <div class="card-body text-center">
+                    <h1>{{ total_semestres }}</h1>
+                    <p class="mb-0">Semestres Activos</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-warning h-100">
+                <div class="card-body text-center">
+                    <h1>{{ total_materias }}</h1>
+                    <p class="mb-0">Materias Registradas</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <h5>👥 Gestión de Alumnos</h5>
+                    <p>Administrar el registro completo de alumnos</p>
+                    <a href="{{ url_for('admin_alumnos') }}" class="btn btn-cbtis w-100">Gestionar Alumnos</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <h5>📊 Reportes Académicos</h5>
+                    <p>Generar reportes y estadísticas del plantel</p>
+                    <button class="btn btn-cbtis w-100" disabled>Próximamente</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">⚡ Acciones Rápidas</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-2">
+                            <a href="{{ url_for('create_alumno') }}" class="btn btn-outline-primary w-100">
+                                ➕ Nuevo Alumno
+                            </a>
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <a href="{{ url_for('ver_usuarios') }}" class="btn btn-outline-info w-100">
+                                👁️ Ver Alumnos
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

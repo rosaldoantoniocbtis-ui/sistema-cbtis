@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% block title %}Administrar Alumnos - CBTIS 272{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>👥 Administración de Alumnos</h2>
+        <a class="btn btn-success" href="{{ url_for('create_alumno') }}">
+            ➕ Nuevo Alumno
+        </a>
+    </div>
+
+    {% if alumnos %}
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Nombre</th>
+                            <th>N° Control</th>
+                            <th>Grupo</th>
+                            <th>Especialidad</th>
+                            <th>Promedio</th>
+                            <th>Semestres</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for alumno in alumnos %}
+                        <tr>
+                            <td>
+                                <strong>{{ alumno.nombre }}</strong>
+                                {% if alumno.turno %}
+                                <br><small class="text-muted">{{ alumno.turno }}</small>
+                                {% endif %}
+                            </td>
+                            <td>{{ alumno.numero_control or 'N/A' }}</td>
+                            <td>{{ alumno.grupo or 'N/A' }}</td>
+                            <td>{{ alumno.especialidad or 'N/A' }}</td>
+                            <td>
+                                {% if alumno.promedio_general %}
+                                <span class="badge {% if alumno.promedio_general >= 8 %}bg-success{% elif alumno.promedio_general >= 6 %}bg-warning{% else %}bg-danger{% endif %} fs-6">
+                                    {{ alumno.promedio_general }}
+                                </span>
+                                {% else %}
+                                <span class="badge bg-secondary">N/A</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if alumno.semestres %}
+                                <span class="badge bg-info">{{ alumno.semestres|length }} semestres</span>
+                                {% else %}
+                                <span class="badge bg-secondary">0 semestres</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a class="btn btn-info" href="{{ url_for('view_alumno', id=alumno.id) }}" title="Ver">
+                                        👁️
+                                    </a>
+                                    <a class="btn btn-warning" href="{{ url_for('gestion_semestres', id_alumno=alumno.id) }}" title="Calificaciones">
+                                        📊
+                                    </a>
+                                    <a class="btn btn-primary" href="{{ url_for('edit_alumno', id=alumno.id) }}" title="Editar">
+                                        ✏️
+                                    </a>
+                                    <form method="post" action="{{ url_for('delete_alumno', id=alumno.id) }}" style="display:inline;">
+                                        <button type="submit" class="btn btn-danger" onclick="return confirm('¿Estás seguro de eliminar a {{ alumno.nombre }}?')" title="Eliminar">
+                                            🗑️
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">📈 Estadísticas Generales</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-3">
+                            <div class="bg-primary text-white p-3 rounded">
+                                <h3>{{ alumnos|length }}</h3>
+                                <small>Total Alumnos</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="bg-success text-white p-3 rounded">
+                                <h3>
+                                    {% set total_semestres = [] %}
+                                    {% for alumno in alumnos %}
+                                        {% if alumno.semestres %}
+                                            {% set _ = total_semestres.append(alumno.semestres|length) %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    {{ total_semestres|sum }}
+                                </h3>
+                                <small>Total Semestres</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="bg-info text-white p-3 rounded">
+                                <h3>
+                                    {% set promedios = [] %}
+                                    {% for alumno in alumnos %}
+                                        {% if alumno.promedio_general %}
+                                            {% set _ = promedios.append(alumno.promedio_general) %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% if promedios %}
+                                        {{ (promedios|sum / promedios|length)|round(2) }}
+                                    {% else %}
+                                        0
+                                    {% endif %}
+                                </h3>
+                                <small>Promedio General</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="bg-warning text-white p-3 rounded">
+                                <h3>
+                                    {% set especialidades = [] %}
+                                    {% for alumno in alumnos %}
+                                        {% if alumno.especialidad and alumno.especialidad not in especialidades %}
+                                            {% set _ = especialidades.append(alumno.especialidad) %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    {{ especialidades|length }}
+                                </h3>
+                                <small>Especialidades</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info text-center">
+        <h4>No hay alumnos registrados</h4>
+        <p>Usa el botón "Nuevo Alumno" para agregar el primer alumno.</p>
+        <a class="btn btn-primary" href="{{ url_for('create_alumno') }}">
+            Agregar Primer Alumno
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

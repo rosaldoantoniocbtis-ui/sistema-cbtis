@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - {{ alumno.nombre }}{% endblock %}
+{% block content %}
+<div class="container mt-4">
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card cbtis-card">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-8">
+              <h3 class="card-title">{{ alumno.nombre }}</h3>
+              <p class="mb-1"><strong>No. Control:</strong> {{ alumno.numero_control }}</p>
+              <p class="mb-1"><strong>Grupo:</strong> {{ alumno.grupo }}</p>
+              <p class="mb-0"><strong>Correo:</strong> {{ alumno.correo }}</p>
+            </div>
+            <div class="col-md-4 text-end">
+              {% if alumno.estadisticas %}
+              <div class="bg-primary text-white p-3 rounded">
+                <h4 class="mb-0">{{ alumno.estadisticas.promedio_general }}</h4>
+                <small>Promedio General</small>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% if alumno.estadisticas %}
+  <div class="row mb-4">
+    <div class="col-md-3">
+      <div class="card text-white bg-success">
+        <div class="card-body text-center">
+          <h3>{{ alumno.estadisticas.materias_aprobadas }}</h3>
+          <p class="mb-0">Aprobadas</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-white bg-danger">
+        <div class="card-body text-center">
+          <h3>{{ alumno.estadisticas.materias_reprobadas }}</h3>
+          <p class="mb-0">Reprobadas</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-white bg-info">
+        <div class="card-body text-center">
+          <h3>{{ alumno.estadisticas.porcentaje_aprobacion }}%</h3>
+          <p class="mb-0">% Aprobación</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card bg-warning text-dark">
+        <div class="card-body text-center">
+          <h3>{{ alumno.historial_academico|length }}</h3>
+          <p class="mb-0">Semestres</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="row">
+    <div class="col-md-6 mb-3">
+      <div class="card h-100">
+        <div class="card-body text-center">
+          <h5>📈 Historial Académico</h5>
+          <p>Consulta tu historial completo por semestres</p>
+          <a href="{{ url_for('historial') }}" class="btn btn-cbtis">Ver Historial</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 mb-3">
+      <div class="card h-100">
+        <div class="card-body text-center">
+          <h5>📋 Boletas</h5>
+          <p>Descarga tus boletas oficiales</p>
+          <a href="{{ url_for('boletas') }}" class="btn btn-cbtis">Ver Boletas</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

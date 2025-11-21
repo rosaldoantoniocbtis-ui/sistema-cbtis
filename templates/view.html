@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Ver Alumno{% endblock %}
+{% block content %}
+<h2>Alumno</h2>
+<div class="card">
+  <div class="card-body">
+    <h5 class="card-title">{{ alumno.nombre }}</h5>
+    <p><strong>Edad:</strong> {{ alumno.edad or '-' }}</p>
+    <p><strong>Grupo:</strong> {{ alumno.grupo or '-' }}</p>
+    <p><strong>Promedio:</strong> {{ alumno.promedio or '-' }}</p>
+    <p><strong>Teléfono:</strong> {{ alumno.telefono or '-' }}</p>
+    <p><strong>Correo:</strong> {{ alumno.correo or '-' }}</p>
+    <p><strong>Número de control:</strong> {{ alumno.numero_control or '-' }}</p>
+    <p><strong>Grado:</strong> {{ alumno.grado or '-' }}</p>
+    <a class="btn btn-secondary" href="{{ url_for('index') }}">Volver</a>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+{% block title %}Boletas - {{ alumno.nombre }}{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card cbtis-card">
+                <div class="card-header bg-primary text-white">
+                    <h3>📋 Boletas de Calificaciones</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <p><strong>Alumno:</strong> {{ alumno.nombre }}</p>
+                            <p><strong>Número de Control:</strong> {{ alumno.numero_control }}</p>
+                            <p><strong>Grupo:</strong> {{ alumno.grupo }}</p>
+                            <p><strong>Especialidad:</strong> {{ alumno.especialidad }}</p>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            {% if alumno.promedio_general %}
+                            <div class="bg-success text-white p-3 rounded">
+                                <h4 class="mb-0">{{ alumno.promedio_general }}</h4>
+                                <small>Promedio General</small>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if alumno.semestres %}
+        {% for semestre in alumno.semestres %}
+        <div class="card mb-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">
+                    {{ semestre.semestre_numero }}° Semestre - {{ semestre.periodo }}
+                    <span class="badge bg-primary float-end">
+                        Promedio: {{ semestre.promedio_semestre }} | 
+                        Aprobadas: {{ semestre.materias_aprobadas }}/{{ semestre.materias|length }}
+                    </span>
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if semestre.materias %}
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Materia</th>
+                                <th>Profesor</th>
+                                <th>Créditos</th>
+                                <th>Parcial 1</th>
+                                <th>Parcial 2</th>
+                                <th>Parcial 3</th>
+                                <th>Promedio</th>
+                                <th>Final</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for materia in semestre.materias %}
+                            <tr>
+                                <td><strong>{{ materia.nombre }}</strong></td>
+                                <td>{{ materia.profesor }}</td>
+                                <td class="text-center">{{ materia.creditos }}</td>
+                                <td class="text-center">{{ materia.parciales[0] if materia.parciales and materia.parciales[0] > 0 else '-' }}</td>
+                                <td class="text-center">{{ materia.parciales[1] if materia.parciales and materia.parciales[1] > 0 else '-' }}</td>
+                                <td class="text-center">{{ materia.parciales[2] if materia.parciales and materia.parciales[2] > 0 else '-' }}</td>
+                                <td class="text-center">
+                                    <span class="badge bg-info">
+                                        {{ materia.promedio_parciales|default(materia.calificacion_final) }}
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge {% if materia.estado == 'Aprobada' %}bg-success{% elif materia.estado == 'Reprobada' %}bg-danger{% else %}bg-warning{% endif %} fs-6">
+                                        {{ materia.calificacion_final if materia.calificacion_final > 0 else 'Cursando' }}
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge {% if materia.estado == 'Aprobada' %}bg-success{% elif materia.estado == 'Reprobada' %}bg-danger{% else %}bg-warning{% endif %}">
+                                        {{ materia.estado }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info text-center">
+                    <p>No hay materias registradas en este semestre.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+
+        <!-- Resumen general -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">📊 Resumen Académico</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-md-3">
+                                <div class="bg-primary text-white p-3 rounded">
+                                    <h3>{{ alumno.semestres|length }}</h3>
+                                    <small>Total Semestres</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="bg-info text-white p-3 rounded">
+                                    <h3>{{ alumno.promedio_general }}</h3>
+                                    <small>Promedio General</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="bg-warning text-white p-3 rounded">
+                                    <h3>
+                                        {% set total_materias = [] %}
+                                        {% for semestre in alumno.semestres %}
+                                            {% for materia in semestre.materias %}
+                                                {% set _ = total_materias.append(1) %}
+                                            {% endfor %}
+                                        {% endfor %}
+                                        {{ total_materias|length }}
+                                    </h3>
+                                    <small>Total Materias</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="bg-success text-white p-3 rounded">
+                                    <h3>
+                                        {% set aprobadas = [] %}
+                                        {% for semestre in alumno.semestres %}
+                                            {% for materia in semestre.materias %}
+                                                {% if materia.estado == 'Aprobada' %}
+                                                    {% set _ = aprobadas.append(1) %}
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endfor %}
+                                        {{ aprobadas|length }}
+                                    </h3>
+                                    <small>Materias Aprobadas</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-warning text-center">
+            <h5>No hay historial académico disponible</h5>
+            <p>El historial académico aún no ha sido registrado.</p>
+            {% if session.get('es_admin') %}
+            <a href="{{ url_for('admin_alumnos') }}" class="btn btn-primary">
+                Ir a Administración
+            </a>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Agregar Semestre - CBTIS 272</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .cbtis-header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+        }
+        .btn-cbtis {
+            background: #1e3c72;
+            color: white;
+        }
+        .btn-cbtis:hover {
+            background: #2a5298;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <header class="cbtis-header py-3">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h4 class="mb-0">Sistema de Control Escolar - CBTIS 272</h4>
+                    <small class="opacity-75">Agregar Semestre</small>
+                </div>
+                <div class="col-md-4 text-end">
+                    <span class="me-3">Bienvenido: <strong>{{ session.nombre }}</strong></span>
+                    <a href="{{ url_for('logout') }}" class="btn btn-sm btn-light">Cerrar Sesión</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <div class="navbar-nav">
+                <a class="nav-link" href="{{ url_for('dashboard') }}">🏠 Dashboard</a>
+                <a class="nav-link" href="{{ url_for('historial') }}">📈 Historial Académico</a>
+                <a class="nav-link" href="{{ url_for('boletas') }}">📋 Boletas</a>
+                <a class="nav-link" href="{{ url_for('admin_alumnos') }}">👥 Admin Alumnos</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">➕ Agregar Nuevo Semestre</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <p><strong>Alumno:</strong> {{ alumno.nombre }}</p>
+                            <p><strong>Número de Control:</strong> {{ alumno.numero_control }}</p>
+                        </div>
+
+                        <form method="post">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Número de Semestre *</label>
+                                    <select class="form-select" name="semestre_numero" required>
+                                        <option value="">Seleccionar semestre</option>
+                                        <option value="1">1° Semestre</option>
+                                        <option value="2">2° Semestre</option>
+                                        <option value="3">3° Semestre</option>
+                                        <option value="4">4° Semestre</option>
+                                        <option value="5">5° Semestre</option>
+                                        <option value="6">6° Semestre</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Periodo Escolar *</label>
+                                    <select class="form-select" name="periodo" required>
+                                        <option value="">Seleccionar periodo</option>
+                                        <option value="AGO 2022 - ENE 2023">AGO 2022 - ENE 2023</option>
+                                        <option value="FEB 2023 - JUL 2023">FEB 2023 - JUL 2023</option>
+                                        <option value="AGO 2023 - ENE 2024">AGO 2023 - ENE 2024</option>
+                                        <option value="FEB 2024 - JUL 2024">FEB 2024 - JUL 2024</option>
+                                        <option value="AGO 2024 - ENE 2025">AGO 2024 - ENE 2025</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="alert alert-info">
+                                <small>
+                                    💡 <strong>Nota:</strong> Después de crear el semestre, podrás agregar las materias 
+                                    y calificaciones correspondientes.
+                                </small>
+                            </div>
+
+                            <div class="d-flex justify-content-between">
+                                <a href="{{ url_for('gestion_semestres', id_alumno=alumno.id) }}" 
+                                   class="btn btn-secondary">
+                                    ← Cancelar
+                                </a>
+                                <button type="submit" class="btn btn-success">
+                                    ✅ Crear Semestre
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 
