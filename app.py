@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from pymongo import MongoClient
+from pymongo.server_api import ServerApi
 from bson.objectid import ObjectId
 import os
 
@@ -11,8 +12,8 @@ ADMIN_CREDENTIALS = {
 }
 
 MONGO_URI = os.environ.get("MONGO_URI", "mongodb+srv://rosaldoantoniocbtis_db_user:tCQ5641BploPNZLM@cbtis.nt3myx6.mongodb.net/escuela?retryWrites=true&w=majority&appName=CBTIS")
-client = MongoClient(MONGO_URI)
-db = client.get_default_database()
+client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000, connectTimeoutMS=5000, socketTimeoutMS=5000)
+db = client.escuela
 
 def to_str_id(doc):
     if not doc:
@@ -564,5 +565,7 @@ def ver_usuarios():
     resultado += "</ul>"
     return resultado
 
+# Configuración para producción en Render
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)
