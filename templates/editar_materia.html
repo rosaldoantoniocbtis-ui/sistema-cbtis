@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}Editar Materia - {{ alumno.nombre }}{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header bg-warning text-white">
+                    <h4 class="mb-0">✏️ Editar Materia</h4>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <p><strong>Alumno:</strong> {{ alumno.nombre }}</p>
+                        <p><strong>Semestre:</strong> {{ semestre.semestre_numero }}° - {{ semestre.periodo }}</p>
+                    </div>
+
+                    <form method="post">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Nombre de la Materia *</label>
+                                <input type="text" class="form-control" name="nombre" 
+                                       value="{{ materia.nombre }}" required>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Profesor *</label>
+                                <input type="text" class="form-control" name="profesor" 
+                                       value="{{ materia.profesor }}" required>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label">Créditos *</label>
+                                <select class="form-select" name="creditos" required>
+                                    <option value="3" {% if materia.creditos == 3 %}selected{% endif %}>3 Créditos</option>
+                                    <option value="4" {% if materia.creditos == 4 %}selected{% endif %}>4 Créditos</option>
+                                    <option value="5" {% if materia.creditos == 5 %}selected{% endif %}>5 Créditos</option>
+                                    <option value="6" {% if materia.creditos == 6 %}selected{% endif %}>6 Créditos</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-9 mb-3">
+                                <label class="form-label">Calificaciones de Parciales</label>
+                                <div class="row g-2">
+                                    <div class="col-4">
+                                        <input type="number" class="form-control" name="parcial1" 
+                                               value="{% if materia.parciales and materia.parciales[0] > 0 %}{{ materia.parciales[0] }}{% else %}0{% endif %}" 
+                                               min="0" max="10" step="0.1">
+                                    </div>
+                                    <div class="col-4">
+                                        <input type="number" class="form-control" name="parcial2" 
+                                               value="{% if materia.parciales and materia.parciales[1] > 0 %}{{ materia.parciales[1] }}{% else %}0{% endif %}" 
+                                               min="0" max="10" step="0.1">
+                                    </div>
+                                    <div class="col-4">
+                                        <input type="number" class="form-control" name="parcial3" 
+                                               value="{% if materia.parciales and materia.parciales[2] > 0 %}{{ materia.parciales[2] }}{% else %}0{% endif %}" 
+                                               min="0" max="10" step="0.1">
+                                    </div>
+                                </div>
+                                <small class="text-muted">Calificaciones del 0 al 10 (0 = no evaluado)</small>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <small>
+                                💡 <strong>Estado actual:</strong> {{ materia.estado }} 
+                                {% if materia.calificacion_final and materia.calificacion_final > 0 %}
+                                | <strong>Promedio:</strong> {{ materia.calificacion_final }}
+                                {% endif %}
+                            </small>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('gestion_semestres', id_alumno=alumno.id) }}" 
+                               class="btn btn-secondary">
+                                ← Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-warning">
+                                💾 Guardar Cambios
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

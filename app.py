@@ -5,6 +5,7 @@ import os
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET", "cbtis-secret-key")
+
 ADMIN_CREDENTIALS = {
     "admin": "admin123"
 }
@@ -33,20 +34,26 @@ def calcular_promedios(alumno):
         materias_aprobadas = 0
         
         for materia in semestre['materias']:
+            # Calcular promedio de parciales si existen
             if 'parciales' in materia and materia['parciales']:
-                materia['promedio_parciales'] = round(sum(materia['parciales']) / len(materia['parciales']), 2)
+                calificaciones_validas = [p for p in materia['parciales'] if p > 0]
+                if calificaciones_validas:
+                    materia['promedio_parciales'] = round(sum(calificaciones_validas) / len(calificaciones_validas), 2)
             
+            # Usar calificación final para promedio del semestre
             if 'calificacion_final' in materia and materia['calificacion_final']:
                 suma_calificaciones += materia['calificacion_final']
                 if materia['estado'] == 'Aprobada':
                     materias_aprobadas += 1
         
+        # Calcular promedio del semestre
         if total_materias > 0:
             semestre['promedio_semestre'] = round(suma_calificaciones / total_materias, 2)
             semestre['materias_aprobadas'] = materias_aprobadas
             semestre['materias_reprobadas'] = total_materias - materias_aprobadas
     
-    promedios_semestres = [s['promedio_semestre'] for s in alumno['semestres'] if 'promedio_semestre' in s]
+    # Calcular promedio general
+    promedios_semestres = [s.get('promedio_semestre', 0) for s in alumno['semestres'] if s.get('promedio_semestre', 0) > 0]
     if promedios_semestres:
         alumno['promedio_general'] = round(sum(promedios_semestres) / len(promedios_semestres), 2)
     
@@ -85,6 +92,7 @@ def login():
             flash("Usuario o contraseña incorrectos", "danger")
     
     return render_template("login.html")
+
 @app.route("/logout")
 def logout():
     session.clear()
@@ -108,7 +116,7 @@ def dashboard():
     alumno = calcular_promedios(alumno)
     
     return render_template("dashboard.html", alumno=alumno)
-    
+
 @app.route("/historial")
 def historial():
     if 'alumno_id' not in session:
@@ -125,6 +133,7 @@ def historial():
     alumno = to_str_id(alumno)
     alumno = calcular_promedios(alumno)
     
+    # Calcular estadísticas
     total_materias = 0
     materias_aprobadas = 0
     total_creditos = 0
@@ -145,6 +154,7 @@ def historial():
                          materias_aprobadas=materias_aprobadas,
                          materias_reprobadas=materias_reprobadas,
                          total_creditos=total_creditos)
+
 
 @app.route("/boletas")
 def boletas():
@@ -167,6 +177,10 @@ def boletas():
 @app.route("/admin/alumnos")
 def admin_alumnos():
     """Lista de alumnos para administrar"""
+    if not session.get('es_admin'):
+        flash("Acceso denegado", "danger")
+        return redirect(url_for('login'))
+    
     alumnos = to_str_list(db.alumnos.find().sort("nombre", 1))
     for alumno in alumnos:
         alumno = calcular_promedios(alumno)
@@ -174,6 +188,10 @@ def admin_alumnos():
 
 @app.route("/admin/alumnos/new", methods=["GET", "POST"])
 def create_alumno():
+    if not session.get('es_admin'):
+        flash("Acceso denegado", "danger")
+        return redirect(url_for('login'))
+    
     if request.method == "POST":
         nombre = request.form.get("nombre", "").strip()
         edad = request.form.get("edad", "").strip()
@@ -216,6 +234,10 @@ def create_alumno():
 
 @app.route("/admin/alumnos/<id>")
 def view_alumno(id):
+    if not session.get('es_admin'):
+        flash("Acceso denegado", "danger")
+        return redirect(url_for('login'))
+    
     try:
         alumno = db.alumnos.find_one({"_id": ObjectId(id)})
     except:
@@ -229,6 +251,10 @@ def view_alumno(id):
 
 @app.route("/admin/alumnos/edit/<id>", methods=["GET", "POST"])
 def edit_alumno(id):
+    if not session.get('es_admin'):
+        flash("Acceso denegado", "danger")
+        return redirect(url_for('login'))
+    
     try:
         alumno = db.alumnos.find_one({"_id": ObjectId(id)})
     except:
@@ -278,6 +304,10 @@ def edit_alumno(id):
 
 @app.route("/admin/alumnos/delete/<id>", methods=["POST"])
 def delete_alumno(id):
+    if not session.get('es_admin'):
+        flash("Acceso denegado", "danger")
+        return redirect(url_for('login'))
+    
     try:
         db.alumnos.delete_one({"_id": ObjectId(id)})
         flash("Alumno eliminado.", "info")
@@ -288,7 +318,8 @@ def delete_alumno(id):
 @app.route("/admin/semestres/<id_alumno>")
 def gestion_semestres(id_alumno):
     """Gestión de semestres del alumno"""
-    if 'alumno_id' not in session:
+    if not session.get('es_admin'):
+        flash("Acceso denegado", "danger")
         return redirect(url_for('login'))
     
     try:
@@ -309,7 +340,8 @@ def gestion_semestres(id_alumno):
 @app.route("/admin/agregar_semestre/<id_alumno>", methods=["GET", "POST"])
 def agregar_semestre(id_alumno):
     """Agregar nuevo semestre al alumno"""
-    if 'alumno_id' not in session:
+    if not session.get('es_admin'):
+        flash("Acceso denegado", "danger")
         return redirect(url_for('login'))
     
     try:
@@ -325,8 +357,7 @@ def agregar_semestre(id_alumno):
             nuevo_semestre = {
                 "semestre_numero": semestre_numero,
                 "periodo": periodo,
-                "materias": [],
-                "promedio_semestre": 0.0
+                "materias": []
             }
             
             db.alumnos.update_one(
@@ -343,10 +374,12 @@ def agregar_semestre(id_alumno):
     except Exception as e:
         flash(f"Error: {str(e)}", "danger")
         return redirect(url_for('admin_alumnos'))
+
 @app.route("/admin/agregar_materia/<id_alumno>/<int:semestre_index>", methods=["GET", "POST"])
 def agregar_materia(id_alumno, semestre_index):
     """Agregar materia a un semestre"""
-    if 'alumno_id' not in session:
+    if not session.get('es_admin'):
+        flash("Acceso denegado", "danger")
         return redirect(url_for('login'))
     
     try:
@@ -401,67 +434,68 @@ def agregar_materia(id_alumno, semestre_index):
         flash(f"Error: {str(e)}", "danger")
         return redirect(url_for('admin_alumnos'))
 
-def crear_datos_prueba():
-    """Ruta de emergencia para crear datos de prueba"""
+@app.route("/admin/editar_materia/<id_alumno>/<int:semestre_index>/<int:materia_index>", methods=["GET", "POST"])
+def editar_materia(id_alumno, semestre_index, materia_index):
+    """Editar materia existente"""
+    if not session.get('es_admin'):
+        flash("Acceso denegado", "danger")
+        return redirect(url_for('login'))
+    
     try:
-        alumno_prueba = {
-            "nombre": "María García López",
-            "edad": 16,
-            "grupo": "4AVP", 
-            "promedio": 9.2,
-            "numero_control": "2024111111",
-            "contrasena": "123456",
-            "correo": "2024111111@cbtis272.edu.mx",
-            "telefono": "555-111-1111",
-            "grado": "4to",
-            "especialidad": "Programación",
-            "turno": "Matutino",
-            "semestres": []
-        }
+        alumno = db.alumnos.find_one({"_id": ObjectId(id_alumno)})
+        if not alumno:
+            flash("Alumno no encontrado", "danger")
+            return redirect(url_for('admin_alumnos'))
         
-        existe = db.alumnos.find_one({"numero_control": "2024111111"})
-        if not existe:
-            db.alumnos.insert_one(alumno_prueba)
-            return '''
-            <h1>✅ Usuario de prueba creado</h1>
-            <p><strong>Número de Control:</strong> 2024111111</p>
-            <p><strong>Contraseña:</strong> 123456</p>
-            <p><a href="/login">Ir al Login</a></p>
-            '''
-        else:
-            return '''
-            <h1>⚠️ Usuario ya existe</h1>
-            <p>Usa estas credenciales:</p>
-            <p><strong>Número de Control:</strong> 2024111111</p>
-            <p><strong>Contraseña:</strong> 123456</p>
-            <p><a href="/login">Ir al Login</a></p>
-            '''
+        if request.method == "POST":
+            nombre = request.form.get("nombre")
+            profesor = request.form.get("profesor")
+            creditos = int(request.form.get("creditos"))
             
+            parcial1 = float(request.form.get("parcial1", 0))
+            parcial2 = float(request.form.get("parcial2", 0))
+            parcial3 = float(request.form.get("parcial3", 0))
+            
+            parciales = [parcial1, parcial2, parcial3]
+            
+            calificaciones_validas = [p for p in parciales if p > 0]
+            if calificaciones_validas:
+                calificacion_final = sum(calificaciones_validas) / len(calificaciones_validas)
+                estado = "Aprobada" if calificacion_final >= 6 else "Reprobada"
+            else:
+                calificacion_final = 0
+                estado = "Cursando"
+            
+            update_data = {
+                f"semestres.{semestre_index}.materias.{materia_index}.nombre": nombre,
+                f"semestres.{semestre_index}.materias.{materia_index}.profesor": profesor,
+                f"semestres.{semestre_index}.materias.{materia_index}.creditos": creditos,
+                f"semestres.{semestre_index}.materias.{materia_index}.parciales": parciales,
+                f"semestres.{semestre_index}.materias.{materia_index}.calificacion_final": round(calificacion_final, 2),
+                f"semestres.{semestre_index}.materias.{materia_index}.estado": estado
+            }
+            
+            db.alumnos.update_one(
+                {"_id": ObjectId(id_alumno)},
+                {"$set": update_data}
+            )
+            
+            flash("Materia actualizada correctamente", "success")
+            return redirect(url_for('gestion_semestres', id_alumno=id_alumno))
+        
+        alumno = to_str_id(alumno)
+        materia = alumno['semestres'][semestre_index]['materias'][materia_index]
+        
+        return render_template("editar_materia.html", 
+                             alumno=alumno, 
+                             semestre_index=semestre_index,
+                             materia_index=materia_index,
+                             materia=materia,
+                             semestre=alumno['semestres'][semestre_index])
+        
     except Exception as e:
-        return f"<h1>❌ Error: {str(e)}</h1>"
-
-@app.route("/ver-usuarios")
-def ver_usuarios():
-    """Ruta temporal para ver usuarios en la base de datos"""
-    usuarios = list(db.alumnos.find({}, {"numero_control": 1, "contrasena": 1, "nombre": 1}))
-    resultado = "<h1>Usuarios en la base de datos:</h1><ul>"
-    for usuario in usuarios:
-        resultado += f"<li>Control: {usuario.get('numero_control', 'N/A')} - Contraseña: {usuario.get('contrasena', 'N/A')} - Nombre: {usuario.get('nombre', 'N/A')}</li>"
-    resultado += "</ul>"
-    return resultado
-
-@app.route("/ver-templates")
-def ver_templates():
-    import os
-    try:
-        templates = os.listdir('templates')
-        html = "<h1>📁 Templates en la carpeta:</h1><ul>"
-        for template in sorted(templates):
-            html += f"<li>{template}</li>"
-        html += "</ul>"
-        return html
-    except Exception as e:
-        return f"<h1>Error: {str(e)}</h1>"
+        flash(f"Error: {str(e)}", "danger")
+        return redirect(url_for('admin_alumnos'))
 
 @app.route("/admin/dashboard")
 def admin_dashboard():
@@ -485,7 +519,50 @@ def admin_dashboard():
                          total_semestres=total_semestres,
                          total_materias=total_materias)
 
+@app.route("/crear-admin")
+def crear_admin():
+    """Ruta de emergencia para crear admin"""
+    try:
+        admin_data = {
+            "nombre": "Administrador",
+            "numero_control": "admin",
+            "contrasena": "admin123", 
+            "es_admin": True,
+            "semestres": []
+        }
+        
+        existe = db.alumnos.find_one({"numero_control": "admin"})
+        if not existe:
+            db.alumnos.insert_one(admin_data)
+            return '''
+            <h1>✅ Admin creado en Atlas</h1>
+            <p><strong>Usuario:</strong> admin</p>
+            <p><strong>Contraseña:</strong> admin123</p>
+            <p><a href="/login">Ir al Login</a></p>
+            '''
+        else:
+            return '''
+            <h1>⚠️ Admin ya existe</h1>
+            <p><strong>Usuario:</strong> admin</p>
+            <p><strong>Contraseña:</strong> admin123</p>
+            <p><a href="/login">Ir al Login</a></p>
+            '''
+    except Exception as e:
+        return f"<h1>❌ Error: {str(e)}</h1>"
 
+@app.route("/ver-usuarios")
+def ver_usuarios():
+    """Ruta temporal para ver usuarios"""
+    if not session.get('es_admin'):
+        flash("Acceso denegado", "danger")
+        return redirect(url_for('login'))
+    
+    usuarios = list(db.alumnos.find({}, {"numero_control": 1, "contrasena": 1, "nombre": 1}))
+    resultado = "<h1>Usuarios en la base de datos:</h1><ul>"
+    for usuario in usuarios:
+        resultado += f"<li>Control: {usuario.get('numero_control', 'N/A')} - Contraseña: {usuario.get('contrasena', 'N/A')} - Nombre: {usuario.get('nombre', 'N/A')}</li>"
+    resultado += "</ul>"
+    return resultado
 
 if __name__ == "__main__":
     app.run(debug=True)
