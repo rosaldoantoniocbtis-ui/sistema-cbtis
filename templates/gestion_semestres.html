@@ -43,10 +43,23 @@
                         Aprobadas: {{ semestre.materias_aprobadas }}/{{ semestre.materias|length }}
                     </span>
                 </h5>
-                <a href="{{ url_for('agregar_materia', id_alumno=alumno.id, semestre_index=loop.index0) }}" 
-                   class="btn btn-sm btn-light">
-                    📖 Agregar Materia
-                </a>
+                <div>
+                    <form action="{{ url_for('eliminar_semestre', id_alumno=alumno.id, semestre_index=loop.index0) }}" 
+                          method="post" style="display: inline;" class="me-2">
+                        <button type="submit" class="btn btn-sm btn-danger" 
+                                onclick="return confirm('⚠️ ¿ESTÁS SEGURO?\n\nSe eliminará TODO el semestre {{ semestre.semestre_numero }}° ({{ semestre.periodo }}) con {{ semestre.materias|length }} materias.\n\nEsta acción no se puede deshacer.')">
+                            🗑️ Eliminar Semestre
+                        </button>
+                    </form>
+                    <a href="{{ url_for('editar_semestre', id_alumno=alumno.id, semestre_index=loop.index0) }}" 
+                       class="btn btn-sm btn-warning me-2">
+                        ✏️ Editar Semestre
+                    </a>
+                    <a href="{{ url_for('agregar_materia', id_alumno=alumno.id, semestre_index=loop.index0) }}" 
+                       class="btn btn-sm btn-light">
+                        📖 Agregar Materia
+                    </a>
+                </div>
             </div>
             <div class="card-body">
                 {% if semestre.materias %}
@@ -113,10 +126,20 @@
                                     </span>
                                 </td>
                                 <td class="text-center">
-                                    <a href="{{ url_for('editar_materia', id_alumno=alumno.id, semestre_index=loop.index0, materia_index=loop.index0) }}" 
-                                       class="btn btn-sm btn-warning" title="Editar materia">
-                                        ✏️
-                                    </a>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{{ url_for('editar_materia_corregido', id_alumno=alumno.id, semestre_numero=semestre.semestre_numero, materia_posicion=loop.index0) }}" 
+                                           class="btn btn-warning" title="Editar {{ materia.nombre }}">
+                                            ✏️
+                                        </a>
+                                        <form action="{{ url_for('eliminar_materia', id_alumno=alumno.id, semestre_index=loop.index0, materia_index=loop.index0) }}" 
+                                              method="post" style="display: inline;">
+                                            <button type="submit" class="btn btn-danger" 
+                                                    title="Eliminar {{ materia.nombre }}" 
+                                                    onclick="return confirm('¿Estás seguro de que quieres eliminar la materia {{ materia.nombre }}?')">
+                                                🗑️
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -145,4 +168,19 @@
     </div>
     {% endif %}
 </div>
+
+<style>
+.btn-group-sm .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+.btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+.btn-danger:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+}
+</style>
 {% endblock %}

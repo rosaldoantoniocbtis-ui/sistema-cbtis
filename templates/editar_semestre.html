@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Editar Semestre - {{ alumno.nombre }}{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-warning text-white">
+                    <h4 class="mb-0">✏️ Editar Semestre</h4>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <p><strong>Alumno:</strong> {{ alumno.nombre }}</p>
+                        <p><strong>Número de Control:</strong> {{ alumno.numero_control }}</p>
+                    </div>
+
+                    <form method="post">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Número de Semestre *</label>
+                                <select class="form-select" name="semestre_numero" required>
+                                    <option value="">Seleccionar semestre</option>
+                                    <option value="1" {% if semestre.semestre_numero == 1 %}selected{% endif %}>1° Semestre</option>
+                                    <option value="2" {% if semestre.semestre_numero == 2 %}selected{% endif %}>2° Semestre</option>
+                                    <option value="3" {% if semestre.semestre_numero == 3 %}selected{% endif %}>3° Semestre</option>
+                                    <option value="4" {% if semestre.semestre_numero == 4 %}selected{% endif %}>4° Semestre</option>
+                                    <option value="5" {% if semestre.semestre_numero == 5 %}selected{% endif %}>5° Semestre</option>
+                                    <option value="6" {% if semestre.semestre_numero == 6 %}selected{% endif %}>6° Semestre</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Periodo Escolar *</label>
+                                <input type="text" class="form-control" name="periodo" 
+                                       value="{{ semestre.periodo }}" required>
+                                <small class="text-muted">Ej: 2025-2026, AGO 2025 - ENE 2026</small>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <small>
+                                💡 <strong>Nota:</strong> Esta acción solo modifica la información del semestre, 
+                                no afecta las materias y calificaciones existentes.
+                            </small>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('gestion_semestres', id_alumno=alumno.id) }}" 
+                               class="btn btn-secondary">
+                                ← Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-warning">
+                                💾 Guardar Cambios
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

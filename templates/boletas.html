@@ -65,39 +65,17 @@
                                 <td><strong>{{ materia.nombre }}</strong></td>
                                 <td>{{ materia.profesor }}</td>
                                 <td class="text-center">{{ materia.creditos }}</td>
-                                <td class="text-center">
-                                    {% if materia.parciales and materia.parciales[0] > 0 %}
-                                        {{ materia.parciales[0] }}
-                                    {% else %}
-                                        -
-                                    {% endif %}
-                                </td>
-                                <td class="text-center">
-                                    {% if materia.parciales and materia.parciales[1] > 0 %}
-                                        {{ materia.parciales[1] }}
-                                    {% else %}
-                                        -
-                                    {% endif %}
-                                </td>
-                                <td class="text-center">
-                                    {% if materia.parciales and materia.parciales[2] > 0 %}
-                                        {{ materia.parciales[2] }}
-                                    {% else %}
-                                        -
-                                    {% endif %}
-                                </td>
+                                <td class="text-center">{{ materia.parciales[0] if materia.parciales and materia.parciales[0] > 0 else '-' }}</td>
+                                <td class="text-center">{{ materia.parciales[1] if materia.parciales and materia.parciales[1] > 0 else '-' }}</td>
+                                <td class="text-center">{{ materia.parciales[2] if materia.parciales and materia.parciales[2] > 0 else '-' }}</td>
                                 <td class="text-center">
                                     <span class="badge bg-info">
-                                        {{ materia.promedio_parciales if materia.promedio_parciales else (materia.calificacion_final if materia.calificacion_final > 0 else 0) }}
+                                        {{ materia.promedio_parciales|default(materia.calificacion_final) }}
                                     </span>
                                 </td>
                                 <td class="text-center">
                                     <span class="badge {% if materia.estado == 'Aprobada' %}bg-success{% elif materia.estado == 'Reprobada' %}bg-danger{% else %}bg-warning{% endif %} fs-6">
-                                        {% if materia.calificacion_final and materia.calificacion_final > 0 %}
-                                            {{ materia.calificacion_final }}
-                                        {% else %}
-                                            Cursando
-                                        {% endif %}
+                                        {{ materia.calificacion_final if materia.calificacion_final > 0 else 'Cursando' }}
                                     </span>
                                 </td>
                                 <td class="text-center">
@@ -119,7 +97,6 @@
         </div>
         {% endfor %}
 
-        <!-- Resumen general -->
         <div class="row">
             <div class="col-md-12">
                 <div class="card">
@@ -136,7 +113,7 @@
                             </div>
                             <div class="col-md-3">
                                 <div class="bg-info text-white p-3 rounded">
-                                    <h3>{{ alumno.promedio_general if alumno.promedio_general else 0 }}</h3>
+                                    <h3>{{ alumno.promedio_general }}</h3>
                                     <small>Promedio General</small>
                                 </div>
                             </div>
